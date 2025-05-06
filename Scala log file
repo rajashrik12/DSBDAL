@@ -1,0 +1,59 @@
+import scala.io.Source
+import scala.collection.mutable
+
+object LogAnalyzer {
+  def main(args: Array[String]): Unit = {
+    val logFile = "log.txt"  // replace with your actual file path
+    val lines = Source.fromFile(logFile).getLines()
+
+    val hostCounts = mutable.Map[String, Int]()
+    val urlCounts = mutable.Map[String, Int]()
+    val uniqueHosts = mutable.Set[String]()
+
+    for (line <- lines) {
+      val parts = line.split(" ")
+
+      if (parts.length > 6) {
+        val host = parts(0)
+        val url = parts(6)
+
+        // Count hosts
+        hostCounts(host) = hostCounts.getOrElse(host, 0) + 1
+
+        // Count URLs
+        urlCounts(url) = urlCounts.getOrElse(url, 0) + 1
+
+        // Add to unique hosts set
+        uniqueHosts += host
+      }
+    }
+
+    // Top 10 frequent hosts
+    println("\nTop 10 Frequent Hosts:")
+    hostCounts.toList.sortBy(-_._2).take(10).foreach {
+      case (host, count) => println(s"$host => $count times")
+    }
+
+    // Top 5 URLs
+    println("\nTop 5 Requested URLs:")
+    urlCounts.toList.sortBy(-_._2).take(5).foreach {
+      case (url, count) => println(s"$url => $count times")
+    }
+
+    // Number of unique hosts
+    println(s"\nTotal Unique Hosts: ${uniqueHosts.size}")
+  }
+}
+
+/*
+
+How to Run:
+Save your log file as log.txt in the same directory.
+
+Compile:
+scalac LogAnalyzer.scala
+
+Run:
+scala LogAnalyzer
+
+*/
